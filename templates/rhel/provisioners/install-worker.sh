@@ -282,13 +282,25 @@ if dnf list installed | grep amazon-ssm-agent; then
 else
   if ! [[ -z "${SSM_AGENT_VERSION}" ]]; then
     echo "Installing amazon-ssm-agent@${SSM_AGENT_VERSION} from S3"
-    sudo dnf install -y https://s3.${BINARY_BUCKET_REGION}.${S3_DOMAIN}/amazon-ssm-${BINARY_BUCKET_REGION}/${SSM_AGENT_VERSION}/linux_${ARCH}/amazon-ssm-agent.rpm --nogpgcheck
+    sudo dnf install -y https://s3.${BINARY_BUCKET_REGION}.${S3_DOMAIN}/amazon-ssm-${BINARY_BUCKET_REGION}/${SSM_AGENT_VERSION}/linux_${ARCH}/amazon-ssm-agent.rpm
   else
     SSM_AGENT_VERSION="latest"
     echo "Installing amazon-ssm-agent@${SSM_AGENT_VERSION} from S3"
-    sudo dnf install -y https://s3.${BINARY_BUCKET_REGION}.${S3_DOMAIN}/amazon-ssm-${BINARY_BUCKET_REGION}/${SSM_AGENT_VERSION}/linux_${ARCH}/amazon-ssm-agent.rpm --nogpgcheck
+    sudo dnf install -y https://s3.${BINARY_BUCKET_REGION}.${S3_DOMAIN}/amazon-ssm-${BINARY_BUCKET_REGION}/${SSM_AGENT_VERSION}/linux_${ARCH}/amazon-ssm-agent.rpm
   fi
 fi
+
+# Ensure the SSM agent is enabled
+sudo systemctl enable amazon-ssm-agent
+
+# Restart the SSM agent
+echo "Restarting amazon-ssm-agent"
+sudo systemctl restart amazon-ssm-agent
+
+# Check the status of the SSM agent
+echo "Checking amazon-ssm-agent status"
+sudo systemctl status amazon-ssm-agent
+
 
 ################################################################################
 ### AMI Metadata ###############################################################
