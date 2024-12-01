@@ -135,7 +135,7 @@ else
   unzip -q "${AWSCLI_DIR}/awscliv2.zip" -d ${AWSCLI_DIR}
   sudo "${AWSCLI_DIR}/aws/install" --bin-dir /bin/ --update
 fi
-
+aws --version
 ################################################################################
 ### AWS credentials ############################################################
 ################################################################################
@@ -289,18 +289,6 @@ else
     sudo dnf install -y https://s3.${BINARY_BUCKET_REGION}.${S3_DOMAIN}/amazon-ssm-${BINARY_BUCKET_REGION}/${SSM_AGENT_VERSION}/linux_${ARCH}/amazon-ssm-agent.rpm --nogpgcheck
   fi
 fi
-
-# Ensure the SSM agent is enabled
-sudo systemctl enable amazon-ssm-agent
-
-# Restart the SSM agent
-echo "Restarting amazon-ssm-agent"
-sudo systemctl restart amazon-ssm-agent
-
-# Check the status of the SSM agent
-echo "Checking amazon-ssm-agent status"
-sudo systemctl status amazon-ssm-agent
-
 
 ################################################################################
 ### AMI Metadata ###############################################################
