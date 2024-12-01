@@ -4,6 +4,34 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to install AWS CLI
+install_aws_cli() {
+    echo "Installing AWS CLI..."
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+    rm -rf aws awscliv2.zip
+    echo "AWS CLI installed successfully."
+}
+
+# Check if AWS CLI is installed, if not, install it
+if ! command_exists aws; then
+    echo "AWS CLI is not installed. Installing now..."
+    install_aws_cli
+else
+    echo "AWS CLI is already installed."
+fi
+
+# Check AWS CLI version
+AWS_VERSION=$(aws --version 2>&1 | cut -d/ -f2 | cut -d' ' -f1)
+echo "AWS CLI version: $AWS_VERSION"
+
+# Rest of your script
 if [ "$#" -ne 1 ]; then
   echo "usage: $0 KUBERNETES_MINOR_VERSION"
   exit 1
