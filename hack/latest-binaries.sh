@@ -16,6 +16,7 @@ aws_cli_accessible() {
 
 # Function to install AWS CLI
 install_aws_cli() {
+    yum install unzip -y
     echo "Installing AWS CLI..."
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
     unzip awscliv2.zip
