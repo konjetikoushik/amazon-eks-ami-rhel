@@ -4,8 +4,39 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-TAG="localhost/kubernetes/pause:latest"
+TAG="*********/kubernetes/pause:latest"
 EXPORT_PATH="/etc/eks/pause.tar"
+
+# Function to find AWS CLI
+find_aws_cli() {
+    if command -v aws &> /dev/null; then
+        echo $(command -v aws)
+    elif [ -f /usr/local/bin/aws ]; then
+        echo "/usr/local/bin/aws"
+    elif [ -f /usr/bin/aws ]; then
+        echo "/usr/bin/aws"
+    else
+        echo ""
+    fi
+}
+
+# Find AWS CLI
+AWS_CLI_PATH=$(find_aws_cli)
+
+if [ -z "$AWS_CLI_PATH" ]; then
+    echo "AWS CLI not found. Attempting to install..."
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+    rm -rf aws awscliv2.zip
+    AWS_CLI_PATH=$(find_aws_cli)
+    if [ -z "$AWS_CLI_PATH" ]; then
+        echo "Failed to install AWS CLI. Exiting."
+        exit 1
+    fi
+fi
+
+echo "Using AWS CLI at: $AWS_CLI_PATH"
 
 while getopts 'i:t:e:' OPTION; do
   case "$OPTION" in
@@ -18,7 +49,7 @@ done
 # pull the sandbox using aws credentials and tag it under a different name
 PULL_ARGS=""
 if [[ "${PAUSE_CONTAINER_IMAGE}" == *"dkr.ecr"* ]]; then
-  PULL_ARGS="${PULL_ARGS} --user AWS:$(aws ecr get-login-password)"
+  PULL_ARGS="${PULL_ARGS} --user AWS:$(${AWS_CLI_PATH} ecr get-login-password)"
 fi
 sudo ctr --namespace k8s.io image pull ${PAUSE_CONTAINER_IMAGE} ${PULL_ARGS}
 sudo ctr --namespace k8s.io image tag ${PAUSE_CONTAINER_IMAGE} ${TAG}
