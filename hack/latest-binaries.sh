@@ -59,8 +59,7 @@ install_aws_cli() {
         exit 1
     fi
 
-    echo "Cleaning up installation files..."
-    rm -rf aws awscliv2.zip
+    
 
     echo "AWS CLI installation process completed."
 }
